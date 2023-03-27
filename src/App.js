@@ -9,7 +9,7 @@ import Channels from './components/Channels'
 import Messages from './components/Messages'
 
 // ABIs
-import Dappcord from './abis/Dappcord.json'
+import discordclone from './abis/discordclone.json'
 
 // Config
 import config from './config.json';
@@ -21,7 +21,7 @@ function App() {
 
   return (
     <div>
-      <h1 style={{ textAlign: "center", padding: "15px" }}>Welcome to Dappcord</h1>
+      <h1 style={{ textAlign: "center", padding: "15px" }}>Welcome to discordclone</h1>
 
       <main>
 

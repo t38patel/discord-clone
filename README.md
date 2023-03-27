@@ -1,4 +1,4 @@
-# Dappcord
+# discordclone
 
 ## Technology Stack & Tools
 

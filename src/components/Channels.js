@@ -1,4 +1,4 @@
-const Channels = ({ provider, account, dappcord, channels, currentChannel, setCurrentChannel }) => {
+const Channels = ({ provider, account, discordclone, channels, currentChannel, setCurrentChannel }) => {
 
   return (
     <div className="channels">
