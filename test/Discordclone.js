@@ -17,6 +17,10 @@ const SYMBOL = "DC"
 
     const Discordclone = await ethers.getContractFactory("discordclone")
     discordclone = await Discordclone.deploy(NAME, SYMBOL)
+
+    //Creating channel
+    const transaction = await discordclone.connect(deployer).createChannel("general", tokens(1))
+    await transaction.wait()
   })
 
     describe("Deployment", function () {
@@ -40,6 +44,19 @@ const SYMBOL = "DC"
         let result = await discordclone.owner()
         // Check symbol
         expect(result).to.equal(deployer.address)
+      })
+    })
+
+    describe("Creating channels", () => {
+      it('Returns total channels', async () => {
+        const result = await discordclone.totalChannels()
+        expect(result).to.be.equal(1)
+      })
+      it('Returns channel attributes', async () => {
+        const channel = await discordclone.getChannel(1)
+        expect(channel.id).to.be.equal(1)
+        expect(channel.name).to.be.equal("general")
+        expect(channel.cost).to.be.equal(tokens(1))
       })
     })
 })
