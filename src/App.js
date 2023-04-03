@@ -9,7 +9,7 @@ import Channels from './components/Channels'
 import Messages from './components/Messages'
 
 // ABIs
-import discordclone from './abis/discordclone.json'
+import Discordclone from './abis/Discordclone.json'
 
 // Config
 import config from './config.json';
@@ -18,13 +18,79 @@ import config from './config.json';
 const socket = io('ws://localhost:3030');
 
 function App() {
+  const [provider, setProvider] = useState(null)
+  const [account, setAccount] = useState(null)
+
+  const [discordclone, setDiscordclone] = useState(null)
+  const [channels, setChannels] = useState([])
+
+  const [currentChannel, setCurrentChannel] = useState(null)
+  const [messages, setMessages] = useState([])
+
+  const loadBlockchainData = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum)
+    setProvider(provider)
+
+    const network = await provider.getNetwork()
+    const discordclone = new ethers.Contract(config[network.chainId].Discordclone.address, Discordclone, provider)
+    setDiscordclone(discordclone)
+
+    const totalChannels = await discordclone.totalChannels()
+    const channels = []
+
+    for (var i = 1; i <= totalChannels; i++) {
+      const channel = await discordclone.getChannel(i)
+      channels.push(channel)
+    }
+
+    setChannels(channels)
+
+    window.ethereum.on('accountsChanged', async () => {
+      window.location.reload()
+    })
+  }
+
+  useEffect(() => {
+    loadBlockchainData()
+
+    // --> https://socket.io/how-to/use-with-react-hooks
+
+    socket.on("connect", () => {
+      socket.emit('get messages')
+    })
+
+    socket.on('new message', (messages) => {
+      setMessages(messages)
+    })
+
+    socket.on('get messages', (messages) => {
+      setMessages(messages)
+    })
+
+    return () => {
+      socket.off('connect')
+      socket.off('new message')
+      socket.off('get messages')
+    }
+  }, [])
 
   return (
     <div>
-      <h1 style={{ textAlign: "center", padding: "15px" }}>Welcome to discordclone</h1>
+      <Navigation account={account} setAccount={setAccount} />
 
       <main>
+        <Servers />
 
+        <Channels
+          provider={provider}
+          account={account}
+          discordclone={discordclone}
+          channels={channels}
+          currentChannel={currentChannel}
+          setCurrentChannel={setCurrentChannel}
+        />
+
+        <Messages account={account} messages={messages} currentChannel={currentChannel} />
       </main>
     </div>
   );
